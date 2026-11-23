@@ -49,18 +49,6 @@
     });
   }
 
-  // ---------- Enlace de la encuesta ----------
-  var CFG = window.MOVI || {};
-  if (CFG.encuestaUrl) {
-    Array.prototype.forEach.call(document.querySelectorAll("[data-encuesta]"), function (nodo) {
-      var a = el("a", "boton boton-primario", "Responder la encuesta");
-      a.href = CFG.encuestaUrl;
-      a.target = "_blank";
-      a.rel = "noopener noreferrer";
-      nodo.parentNode.replaceChild(a, nodo);
-    });
-  }
-
   // ---------- Cuentas y publicaciones (Muévete PUCP) ----------
   var contCuentas = document.getElementById("cuentas");
   var cuentas = window.CUENTAS || [];

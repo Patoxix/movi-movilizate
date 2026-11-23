@@ -28,12 +28,13 @@
         <p>Este sitio no instala cookies, no mide visitas con herramientas de terceros y no carga rastreadores. Por eso no mostramos un cartel de cookies.</p>
         <h2>Lo único que se guarda en tu navegador</h2>
         <p>Si cierras el aviso importante o el mensaje de Chasqui, el navegador recuerda esa decisión mientras tengas la pestaña abierta (con <em>sessionStorage</em>), para que no vuelvan a aparecer en cada página. Se borra al cerrar la pestaña y no se envía a ningún servidor.</p>
+        <p>Si envías la encuesta, el navegador guarda además una marca de «ya respondió» (con <em>localStorage</em>) para no volver a pedírtela y para que cada persona responda una sola vez. La marca no incluye tus respuestas ni ningún dato tuyo, y puedes borrarla desde los datos del sitio en tu navegador.</p>
         <h2>Chasqui</h2>
         <p>Lo que escribes en el chat se procesa en tu navegador. No se guarda ni se envía a nadie.</p>
         <h2>Tipografías</h2>
         <p>Las tipografías están alojadas en este mismo sitio. No se cargan desde Google ni desde otro servicio externo.</p>
         <h2>Encuesta</h2>
-        <p>La encuesta es voluntaria y anónima: no pedimos nombre ni correo. Los resultados se publicarán de forma agregada. Se responde en un formulario externo, que tiene sus propias políticas.</p>
+        <p>La encuesta se responde en una ventana dentro de esta página. Es voluntaria y anónima: no pedimos nombre ni correo, y no guardamos ningún identificador. Tus respuestas se envían a un formulario del grupo y se publicarán de forma agregada. Ese formulario está alojado en un servicio externo (Google Forms), que aplica sus propias políticas de privacidad.</p>
         <h2>Entrevistas y testimonios</h2>
         <p>Solo se publican con consentimiento informado. Los consentimientos firmados no se publican. No publicamos nombres de estudiantes con procesos abiertos.</p>
         <h2>Enlaces externos y alojamiento</h2>
@@ -45,7 +46,9 @@
 
   </main>
 
-  <script src="data/config.js"></script>
+  <script src="js/modal.js"></script>
+  <script src="data/encuesta.js"></script>
+  <script src="js/encuesta.js"></script>
   <script src="js/layout.js"></script>
   <script src="js/app.js"></script>
   <script src="data/chasqui.js"></script>

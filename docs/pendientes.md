@@ -20,7 +20,7 @@
 
 ## Cambios de la versión 2 (23 nov)
 
-- Aviso importante cerrable al inicio, con la invitación a la encuesta anónima.
+- Aviso importante como ventana a pantalla casi completa que bloquea la página hasta cerrar con la × o responder la encuesta. La encuesta se responde en una ventana emergente, no en un enlace.
 - Logo: una M. Tipografías nuevas (Zilla Slab y Public Sans).
 - Páginas separadas, con menú de tres rayas.
 - Página de Privacidad (sin cookies).
@@ -29,7 +29,8 @@
 
 ## Pendientes de esta versión
 
-- Pegar el enlace de la encuesta en `data/config.js`. El formulario debe estar sin recolección de correos.
+- Pasar las preguntas y opciones definitivas de la encuesta (hoy hay 6 provisionales en `data/encuesta.js`).
+- Crear un Google Forms del grupo con esas mismas preguntas, sin recolección de correos, y pasar su enlace y los códigos `entry.` de cada pregunta para conectarlo. Mientras no esté conectado, la encuesta funciona en «modo de prueba» y no guarda respuestas.
 - Pasar capturas de publicaciones para cargarlas en `data/publicaciones.js` (con enlace a la original).
 - Verificar el nombre exacto de COPESS en su perfil.
 - Definir un medio de contacto para correcciones (se menciona en «El proyecto»).

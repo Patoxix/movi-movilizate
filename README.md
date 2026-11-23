@@ -9,7 +9,7 @@ Sitio estático (HTML, CSS y JavaScript, sin herramientas de compilación). Las 
 
 - Páginas: `index.html` (portada), `que-paso.html`, `versiones.html`, `voces.html`, `muevete.html`, `manifiesto.html`, `glosario.html`, `proyecto.html`, `privacidad.html`. Los textos se editan directamente en cada archivo.
 - `js/layout.js`: **aviso importante, menú de tres rayas y pie** (lista de páginas en `PAGINAS`).
-- `data/config.js`: **enlace de la encuesta** (`encuestaUrl`). Mientras esté vacío, la página dice «Enlace próximamente».
+- `data/encuesta.js`: **preguntas, opciones y destino de la encuesta** (ventana emergente). `js/encuesta.js` y `js/modal.js` son la lógica; no hace falta tocarlos. Mientras el destino esté vacío, la encuesta funciona en «modo de prueba» y avisa que no guarda nada. Para repetir pruebas, abre cualquier página con `?reiniciar=1`.
 - `data/linea-tiempo.js`: **la línea de tiempo.** Aquí se agregan o corrigen los hechos.
 - `data/publicaciones.js`: **cuentas de Instagram y publicaciones** de Muévete PUCP (se copian a mano, con fecha y enlace).
 - `data/chasqui.js` y `js/chasqui.js`: **Chasqui**, el robotsito del chat. Sus preguntas y respuestas se editan en `data/chasqui.js`.

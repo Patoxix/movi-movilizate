@@ -16,7 +16,6 @@
   ];
   window.MOVI_PAGINAS = PAGINAS;
 
-  var CFG = window.MOVI || {};
   var actual = document.body.getAttribute("data-pagina");
 
   function el(tag, clase, texto) {
@@ -28,42 +27,49 @@
   function guardar(k, v) { try { sessionStorage.setItem(k, v); } catch (e) {} }
   function leer(k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } }
 
-  /* ---------- Aviso importante ---------- */
+  /* ---------- Aviso importante (ventana bloqueante) ---------- */
   var aviso = null;
-  if (leer("movi-aviso") !== "1") {
-    aviso = el("div", "aviso");
+  function yaRespondio() { try { return localStorage.getItem("movi-encuesta") === "1"; } catch (e) { return false; } }
+  function cerrarAviso() {
+    if (!aviso) return;
+    guardar("movi-aviso", "1");
+    window.MOVI_MODAL.cerrar(aviso);
+    if (aviso.parentNode) aviso.parentNode.removeChild(aviso);
+    aviso = null;
+  }
+  if (leer("movi-aviso") !== "1" && !yaRespondio() && window.MOVI_MODAL) {
+    aviso = el("div", "modal modal-aviso");
     aviso.id = "aviso";
-    aviso.setAttribute("role", "region");
-    aviso.setAttribute("aria-label", "Aviso importante");
-    var fila = el("div", "contenedor aviso-fila");
-    fila.appendChild(el("p", "aviso-etiqueta", "Aviso importante"));
-    var texto = el("div", "aviso-texto");
-    texto.appendChild(el("p", null, "Este sitio es un proyecto académico del curso Información y Cultura Digital (PUCP, 2026-2). No es un medio oficial de la universidad ni de la Federación de Estudiantes."));
-    texto.appendChild(el("p", null, "A continuación te invitamos a responder una breve encuesta, anónima y voluntaria, para conocer qué tan informadas están las personas sobre este tema. No pedimos tu nombre ni tu correo."));
-    fila.appendChild(texto);
-    var acciones = el("div", "aviso-acciones");
-    var enc = el("a", "boton boton-oscuro");
-    if (CFG.encuestaUrl) {
-      enc.textContent = "Responder la encuesta";
-      enc.href = CFG.encuestaUrl;
-      enc.target = "_blank";
-      enc.rel = "noopener noreferrer";
-    } else {
-      enc.textContent = "Ver la encuesta";
-      enc.href = "voces.html#encuesta";
-    }
-    acciones.appendChild(enc);
-    fila.appendChild(acciones);
-    var cerrar = el("button", "aviso-cerrar", "×");
+    aviso.hidden = true;
+    aviso.setAttribute("data-modal", "");
+    aviso.setAttribute("role", "dialog");
+    aviso.setAttribute("aria-modal", "true");
+    aviso.setAttribute("aria-labelledby", "aviso-titulo");
+    var caja = el("div", "modal-caja");
+    var cerrar = el("button", "modal-cerrar");
     cerrar.type = "button";
-    cerrar.setAttribute("aria-label", "Cerrar el aviso");
-    cerrar.addEventListener("click", function () {
-      aviso.hidden = true;
-      guardar("movi-aviso", "1");
+    cerrar.setAttribute("aria-label", "Cerrar el aviso y entrar a la página");
+    cerrar.innerHTML = '<span class="modal-cerrar-texto">Cerrar</span><span aria-hidden="true">×</span>';
+    cerrar.addEventListener("click", cerrarAviso);
+    caja.appendChild(cerrar);
+    caja.appendChild(el("p", "aviso-etiqueta", "Aviso importante"));
+    var h = el("h2", "aviso-titulo", "Antes de entrar");
+    h.id = "aviso-titulo";
+    h.tabIndex = -1;
+    h.setAttribute("data-foco", "");
+    caja.appendChild(h);
+    caja.appendChild(el("p", "aviso-parrafo", "Este sitio es un proyecto académico del curso Información y Cultura Digital (PUCP, 2026-2). No es un medio oficial de la universidad ni de la Federación de Estudiantes."));
+    caja.appendChild(el("p", "aviso-parrafo", "A continuación te invitamos a responder una breve encuesta, anónima y voluntaria, para conocer qué tan informadas están las personas sobre este tema. No pedimos tu nombre ni tu correo."));
+    var acciones = el("div", "aviso-acciones");
+    var enc = el("button", "boton boton-oscuro", "Responder la encuesta");
+    enc.type = "button";
+    enc.addEventListener("click", function () {
+      if (window.MOVI_ENCUESTA) window.MOVI_ENCUESTA.abrir({ desdeAviso: true, alTerminar: cerrarAviso });
     });
-    fila.appendChild(cerrar);
-    aviso.appendChild(fila);
-    document.body.insertBefore(aviso, document.body.firstChild);
+    acciones.appendChild(enc);
+    caja.appendChild(acciones);
+    caja.appendChild(el("p", "aviso-pie", "Para ver la página, responde la encuesta o cierra este aviso con la ×."));
+    aviso.appendChild(caja);
   }
 
   /* ---------- Cabecera ---------- */
@@ -93,7 +99,7 @@
   cab.appendChild(cfila);
 
   var ancla = document.querySelector(".saltar");
-  var referencia = aviso ? aviso.nextSibling : document.body.firstChild;
+  var referencia = document.body.firstChild;
   if (ancla && ancla.parentNode === document.body) referencia = ancla.nextSibling;
   document.body.insertBefore(cab, referencia);
 
@@ -207,4 +213,10 @@
   pie.appendChild(pc);
   var scripts = document.querySelector("body > script");
   document.body.insertBefore(pie, scripts);
+
+  /* ---------- Abrir el aviso al final, con la página ya armada ---------- */
+  if (aviso) {
+    document.body.appendChild(aviso);
+    window.MOVI_MODAL.abrir(aviso, { onEsc: cerrarAviso });
+  }
 })();
