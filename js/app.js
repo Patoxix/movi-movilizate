@@ -7,6 +7,13 @@
     if (texto) nodo.textContent = texto;
     return nodo;
   }
+  function enlace(texto, url) {
+    var a = el("a", null, texto);
+    a.href = url;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    return a;
+  }
 
   // ---------- Línea de tiempo ----------
   var raiz = document.getElementById("linea");
@@ -31,11 +38,7 @@
         e.fuentes.forEach(function (s) {
           var item = el("li");
           item.appendChild(document.createTextNode("Fuente: "));
-          var a = el("a", null, s.medio + ", «" + s.titulo + "»");
-          a.href = s.url;
-          a.target = "_blank";
-          a.rel = "noopener noreferrer";
-          item.appendChild(a);
+          item.appendChild(enlace(s.medio + ", «" + s.titulo + "»", s.url));
           ul.appendChild(item);
         });
         li.appendChild(ul);
@@ -46,45 +49,103 @@
     });
   }
 
-  // ---------- Menú en móvil ----------
-  var boton = document.getElementById("menu-boton");
-  var menu = document.getElementById("menu");
-  if (boton && menu) {
-    boton.addEventListener("click", function () {
-      var abierto = menu.classList.toggle("abierto");
-      boton.setAttribute("aria-expanded", String(abierto));
-    });
-    menu.addEventListener("click", function (ev) {
-      if (ev.target.tagName === "A") {
-        menu.classList.remove("abierto");
-        boton.setAttribute("aria-expanded", "false");
-      }
-    });
-    document.addEventListener("keydown", function (ev) {
-      if (ev.key === "Escape" && menu.classList.contains("abierto")) {
-        menu.classList.remove("abierto");
-        boton.setAttribute("aria-expanded", "false");
-        boton.focus();
-      }
+  // ---------- Enlace de la encuesta ----------
+  var CFG = window.MOVI || {};
+  if (CFG.encuestaUrl) {
+    Array.prototype.forEach.call(document.querySelectorAll("[data-encuesta]"), function (nodo) {
+      var a = el("a", "boton boton-primario", "Responder la encuesta");
+      a.href = CFG.encuestaUrl;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      nodo.parentNode.replaceChild(a, nodo);
     });
   }
 
-  // ---------- Sección activa en el menú ----------
-  var enlaces = Array.prototype.slice.call(document.querySelectorAll(".menu a"));
-  var secciones = enlaces
-    .map(function (a) { return document.querySelector(a.getAttribute("href")); })
-    .filter(Boolean);
-  if ("IntersectionObserver" in window && secciones.length) {
-    var io = new IntersectionObserver(function (entradas) {
-      entradas.forEach(function (en) {
-        if (en.isIntersecting) {
-          enlaces.forEach(function (a) {
-            a.classList.toggle("activo", a.getAttribute("href") === "#" + en.target.id);
-          });
+  // ---------- Cuentas y publicaciones (Muévete PUCP) ----------
+  var contCuentas = document.getElementById("cuentas");
+  var cuentas = window.CUENTAS || [];
+  if (contCuentas) {
+    cuentas.forEach(function (c) {
+      var li = el("li");
+      var art = el("article", "cuenta");
+      art.appendChild(el("p", "tipo", c.tipo));
+      art.appendChild(el("h3", null, c.nombre));
+      art.appendChild(el("p", "usuario", c.usuario));
+      var a = el("a", "boton boton-oscuro", "Ver en Instagram ↗");
+      a.href = c.url;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.setAttribute("aria-label", "Ver " + c.usuario + " en Instagram (se abre en otra pestaña)");
+      art.appendChild(a);
+      li.appendChild(art);
+      contCuentas.appendChild(li);
+    });
+  }
+
+  var contPubs = document.getElementById("publicaciones-lista");
+  var contFiltros = document.getElementById("filtros");
+  if (contPubs) {
+    var pubs = (window.PUBLICACIONES || []).slice().sort(function (a, b) {
+      return a.fecha < b.fecha ? 1 : a.fecha > b.fecha ? -1 : 0;
+    });
+    var nombreCuenta = {};
+    cuentas.forEach(function (c) { nombreCuenta[c.id] = c; });
+    var fmt = new Intl.DateTimeFormat("es-PE", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+
+    var pintar = function (filtro) {
+      contPubs.textContent = "";
+      var lista = pubs.filter(function (p) { return filtro === "todas" || p.cuenta === filtro; });
+      if (!lista.length) {
+        var vacio = el("li", "pubs-vacio", pubs.length
+          ? "No hay publicaciones cargadas de esta cuenta."
+          : "Todavía no hay publicaciones cargadas. El grupo las irá agregando con su fecha y el enlace a la publicación original.");
+        contPubs.appendChild(vacio);
+        return;
+      }
+      lista.forEach(function (p) {
+        var c = nombreCuenta[p.cuenta] || { nombre: p.cuenta, usuario: "" };
+        var li = el("li");
+        var art = el("article", "pub");
+        art.setAttribute("data-cuenta", p.cuenta);
+        var cab = el("p", "pub-cab");
+        cab.appendChild(el("strong", null, c.nombre));
+        if (c.usuario) cab.appendChild(el("span", null, c.usuario));
+        var d = new Date(p.fecha + "T00:00:00Z");
+        var t = el("time", null, isNaN(d) ? p.fecha : fmt.format(d));
+        t.setAttribute("datetime", p.fecha);
+        cab.appendChild(t);
+        art.appendChild(cab);
+        String(p.texto).split("\n").forEach(function (par) {
+          if (par.trim()) art.appendChild(el("p", null, par));
+        });
+        if (p.nota) art.appendChild(el("p", "pub-nota", p.nota));
+        if (p.url) {
+          var pa = el("p");
+          pa.appendChild(enlace("Ver la publicación original ↗", p.url));
+          art.appendChild(pa);
         }
+        li.appendChild(art);
+        contPubs.appendChild(li);
       });
-    }, { rootMargin: "-40% 0px -55% 0px" });
-    secciones.forEach(function (s) { io.observe(s); });
+    };
+
+    if (contFiltros) {
+      var opciones = [{ id: "todas", nombre: "Todas" }].concat(cuentas.map(function (c) {
+        return { id: c.id, nombre: c.id === "fepuc" ? "Federación" : c.id === "copess" ? "COPESS" : "PUCP" };
+      }));
+      opciones.forEach(function (o, k) {
+        var b = el("button", "filtro", o.nombre);
+        b.type = "button";
+        b.setAttribute("aria-pressed", k === 0 ? "true" : "false");
+        b.addEventListener("click", function () {
+          Array.prototype.forEach.call(contFiltros.children, function (x) { x.setAttribute("aria-pressed", "false"); });
+          b.setAttribute("aria-pressed", "true");
+          pintar(o.id);
+        });
+        contFiltros.appendChild(b);
+      });
+    }
+    pintar("todas");
   }
 
   // ---------- Entrada suave de los eventos ----------
